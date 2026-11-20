@@ -1,8 +1,12 @@
 # ScyllaHide for IDA Pro 9.0 / 9.4
 
-本项目基于开源用户态（Ring 3）反反调试框架 [x64dbg/ScyllaHide](https://github.com/x64dbg/ScyllaHide)，完成了对 **Hex-Rays IDA Pro 9.0 SDK** 与 **IDA Pro 9.4 SDK** 的完整适配与重构，支持 **Windows x64 / x86（WOW64）PE** 程序的自动反反调试隐藏。
+小时候抱过我的反调试一把梭的古法CTF插件不更新了，也没人适配IDA9，而且对32位程序支持也有问题...于是就让AI搓了一个支持IDA9的SDK的fork，还顺手修了几个BUG。
 
-> 如需内核态（Ring 0）反反调试，请参考 [TitanHide](https://github.com/mrexodia/titanhide)。
+下面的README纯AI写的：
+
+---
+
+本项目基于开源用户态（Ring 3）反反调试框架 [x64dbg/ScyllaHide](https://github.com/x64dbg/ScyllaHide)，完成了对 **Hex-Rays IDA Pro 9.0 SDK** 与 **IDA Pro 9.4 SDK** 的完整适配与重构，支持 **Windows x64 / x86（WOW64）PE** 程序的自动反反调试隐藏。
 
 ---
 
