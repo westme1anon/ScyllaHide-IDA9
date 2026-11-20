@@ -27,6 +27,7 @@ scmrev.h
 # without accidentally committing it and receiving a takedown request
 # as a thank you for helping to expand the IDA plugin ecosystem
 3rdparty/idasdk/
+3rdparty/idasdk*/
 
 # Visual Studio 2015 cache/options directory
 .vs/

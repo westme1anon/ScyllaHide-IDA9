@@ -1,0 +1,10 @@
+{
+  "IDAMetadataDescriptorVersion": 1,
+  "plugin": {
+    "name": "ScyllaHide",
+    "version": "1.4.0",
+    "entryPoint": "ScyllaHideIDAProPlugin",
+    "description": "Advanced usermode anti-anti-debugger plugin for IDA Pro 9.x",
+    "idaVersions": ">=9.0"
+  }
+}

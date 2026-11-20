@@ -149,7 +149,7 @@ void MapSettings()
     g_settings.opts().dllStealth = idaExchange.DllInjectStealth;
     g_settings.opts().hookKiUserExceptionDispatcher = idaExchange.EnableKiUserExceptionDispatcherHook;
     g_settings.opts().hookNtClose = idaExchange.EnableNtCloseHook;
-    g_settings.opts().hookNtContinue = idaExchange.EnableNtCloseHook;
+    g_settings.opts().hookNtContinue = idaExchange.EnableNtContinueHook;
     g_settings.opts().hookNtCreateThreadEx = idaExchange.EnableNtCreateThreadExHook;
     g_settings.opts().hookNtGetContextThread = idaExchange.EnableNtGetContextThreadHook;
     g_settings.opts().hookNtQueryInformationProcess = idaExchange.EnableNtQueryInformationProcessHook;
@@ -178,36 +178,38 @@ void MapSettings()
     g_settings.opts().fixPebHeapFlags = idaExchange.EnablePebHeapFlags;
     g_settings.opts().fixPebNtGlobalFlag = idaExchange.EnablePebNtGlobalFlag;
     g_settings.opts().fixPebStartupInfo = idaExchange.EnablePebStartupInfo;
+    g_settings.opts().fixPebOsBuildNumber = idaExchange.EnablePebOsBuildNumber;
 
     g_settings.opts().malwareRunpeUnpacker = idaExchange.EnableMalwareRunPeUnpacker;
 }
 
-static void DoSomeBitCheck()
+static bool DoSomeBitCheck()
 {
     if (scl::IsWindows64())
     {
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, 0, ProcessId);
         if (hProcess)
         {
-
+            bool mismatch = false;
 #ifdef _WIN64
             if (scl::IsWow64Process(hProcess))
             {
-                printf("WARNING: This is a 32bit process and I am 64bit!");
-                getchar();
-                ExitProcess(0);
+                printf("WARNING: PID %lu is a 32bit process and this server is 64bit!\n", ProcessId);
+                mismatch = true;
             }
 #else
             if (!scl::IsWow64Process(hProcess))
             {
-                printf("WARNING: This is a 64bit process and I am 32bit!");
-                getchar();
-                ExitProcess(0);
+                printf("WARNING: PID %lu is a 64bit process and this server is 32bit!\n", ProcessId);
+                mismatch = true;
             }
 #endif
             CloseHandle(hProcess);
+            if (mismatch)
+                return false;
         }
     }
+    return true;
 }
 
 static void handleClient(SOCKET ClientSocket)
@@ -237,14 +239,17 @@ static void handleClient(SOCKET ClientSocket)
                 bHooked = false;
                 ZeroMemory(&g_hdd, sizeof(HOOK_DLL_DATA));
 
-                if (!once)
+                if (!DoSomeBitCheck())
                 {
-                    DoSomeBitCheck();
-                    once = true;
+                    idaExchange.result = RESULT_FAILED;
+                    send(ClientSocket, (char*)&idaExchange, sizeof(IDA_SERVER_EXCHANGE), 0);
+                    continue;
                 }
+                once = true;
 
                 if (!bHooked)
                 {
+                    ReadNtApiInformation(&g_hdd);
                     bHooked = true;
                     startInjection(ProcessId, &g_hdd, g_scyllaHideDllPath.c_str(), true);
                 }
